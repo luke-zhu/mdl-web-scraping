@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 
 if __name__ == '__main__':
@@ -24,12 +23,20 @@ if __name__ == '__main__':
     show_similarity = pd.DataFrame(index=sorted_df.index,
         columns=sorted_df.index)
 
-    
-    for show1 in sorted_df.index:
-        for show2 in sorted_df.index:
-            x = filtered[filtered['title'] == show1]
-            y = filtered[filtered['title'] == show2]
-            x_and_y = pd.merge(x, y, how='inner', on=['user'])
-            show_similarity[show1][show2] = len(x_and_y) / np.sqrt(len(x) * len(y))
-    
+    pairs = pd.merge(filtered[['user', 'title']], filtered[['user', 'title']],
+        how='inner',
+        on=['user'])
+
+    pair_counts= pairs.groupby(['title_x', 'title_y']).count()
+    """
+    for title1, group1 in grouped:
+        print(title1)
+        num_t1 = len(group1)
+        for title2, group2 in grouped:
+            num_t2 = len(group2)
+            num_both = len(pd.merge(group1, group2, how='inner', on=['user']))
+            show_similarity[title1][title2] = num_both ** 2 / (num_t1 * num_t2)
+            # print('{}, {}'.format(title1, title2))
+    """
+
     show_similarity.to_json('show-similarity-1.json')
